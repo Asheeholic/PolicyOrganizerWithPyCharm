@@ -3,8 +3,8 @@ import openpyxl
 from openpyxl.styles import Alignment
 
 # Local import
-from . import analyze
-from . import style
+import analyze
+import style
 
 # 정의 함수
 def execute():
@@ -13,9 +13,9 @@ def execute():
     # 스타일 만들기
 
     # 필수 파라미터
-    txt_dir = 'txt-dir/'
-    xlsx_dir = 'xlsx-dir/'
-    txt_file = 'bppllist.txt'
+    txt_dir = '../txt-dir/'
+    xlsx_dir = '../xlsx-dir/'
+    txt_file = 'sogang5250_bppllist.txt'
 
     width_rate = 1.3 # 엑셀 가로 넓이 배율
 
@@ -33,3 +33,5 @@ def execute():
     # 저장
     file.close()
     wb.save(xlsx_dir + sheet_name + '.xlsx')
+
+execute()

@@ -8,7 +8,7 @@ def execute(ws, total_policy_number, width_rate):
 
     # 셀 높이
     ws.row_dimensions[2].height = 30
-    li = ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P']
+    li = ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q']
 
 
     # 모든 행에 적용
