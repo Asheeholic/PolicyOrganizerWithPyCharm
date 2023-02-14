@@ -4,7 +4,9 @@
 from openpyxl.styles import Alignment
 
 # Local import
-from analyzeTools import scheduleTools
+from analyzeTools import dataRefine
+from analyzeTools import putInDataInCell
+from analyzeTools import putInArrayAsDict
 
 # 정의 함수
 def execute(sheet_name, ws, lines):
@@ -13,7 +15,7 @@ def execute(sheet_name, ws, lines):
     ws.title = sheet_name
 
     # 엑셀 스타일을 위한 정책 개수 리턴하기
-    total_policy_num = 0
+    row_num = 2
 
     # 배열 선언
     rows = 0
@@ -51,15 +53,23 @@ def execute(sheet_name, ws, lines):
 
     # 1. 열 별 제목 만들기
     column_titles = [
-        '정책명', '정책 유형', '사용', '스토리지 유닛', '볼륨 풀',
-        '엑셀러레이터 사용', '하드웨어', 'OS',
-        '클라이언트 명', '백업 경로',
-        '스케줄 이름', '스케줄 유형',
-        '캘린더 날짜', '백업보관일', '윈도우 시간'
+        'Policy Name',
+        'Policy Type',
+        'Active',
+        'Residence',  # storage unit
+        'HW/OS/Client',
+        'Include',  # backup selection
+        'Schedule',  # Schedule name
+        'Type',  # schedule type
+        'Other Residence', # Copy 2 and more
+        'Retention Level',  # retention (레벨은 안찍히고 뒤에 날짜만)
+        'Frequency',  # Frequency / calendar
+        'Calendar sched',
+        'Daily Windows'
     ]
-    title_name_i = 0
+    title_name_i = 1
     for title_name in column_titles :
-        ws.cell(column=(2+title_name_i), row=2, value=title_name)
+        ws.cell(column=title_name_i, row=1, value=title_name)
         title_name_i += 1
 
     # 2. 정책 별 정보 넣기
@@ -79,56 +89,19 @@ def execute(sheet_name, ws, lines):
 
     for policy_num in range(1, len(analyze_txt_lines)):
 
-        datas = []
+        datas = putInArrayAsDict.put_in_array_as_dict(analyze_txt_lines[policy_num], not_in_the_list)
 
-        # for include
-        include_in_boolean = False
+        datas = dataRefine.data_refine('HW/OS/Client', datas)
+        datas = dataRefine.data_refine('Include', datas)
+        datas = dataRefine.data_refine('Daily Windows', datas)
 
-        for line_num in range(0, len(analyze_txt_lines[policy_num])):
+        datas = dataRefine.residence_refine(datas)
+        datas = dataRefine.calendar_refine(datas)
+        datas = dataRefine.daily_windows_refine_for_7days(datas)
+        datas = dataRefine.none_refine(datas)
+        row_num = putInDataInCell.put_in_data_in_cell(ws, column_titles, datas, row_num)
 
-            # 짧게 요약
-            analyzed_txt = analyze_txt_lines[policy_num][line_num]
-            data = {}
-
-            # 공란 및 쓸데없는 문자 제외하고 시작하기
-            if analyzed_txt in not_in_the_list:
-                continue
-            if 'Schedule:' in analyzed_txt:
-                include_in_boolean = False
-
-            ## include 관련 예외 처리
-            if 'Include:' in analyzed_txt:
-                data = {analyzed_txt.split(' ')[0].strip() \
-                            : analyzed_txt.split('Include:')[1].strip()}
-                include_in_boolean = True
-
-            elif include_in_boolean:
-                data = analyzed_txt
-            ## include 관련 예외 처리 끝
-
-            elif ':' in analyzed_txt \
-                    and '-->' not in analyzed_txt \
-                    and 'Include:' not in analyzed_txt :
-                data = { analyzed_txt.split(':')[0].strip() \
-                             : analyzed_txt.split(':')[1].strip() }
-
-
-            else:
-                data = analyzed_txt
-
-            datas.append(data)
-
-        #1. 데일리 윈도우 정리
-        #2. include 정리
-
-        # 마지막 정책 번호 더하기
-        total_policy_num = policy_num
-        policy_num += 1
-
-
-
-
-    return total_policy_num
+    return row_num
 
     # #### 한 셀 줄바꿈 방법
     # ws['A1'] = "Line 1\nLine 2"

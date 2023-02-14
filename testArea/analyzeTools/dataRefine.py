@@ -1,85 +1,132 @@
 ## dataRefine.py
 
 # 1. Daily Window 정리
+# 2. Include 정리
+"""
+unit_name = string
+data_param = array => ['a', 'b']
+"""
+def data_refine(unit_name, data_param):
 
-datas = [
-    {'Policy Name': 'CYBER2013_FILE'},
-    {'Policy Type': 'MS-Windows'},
-    {'Active': 'no'},
-    {'Effective date': '02/05/2013 16'},
-    {'Backup network drvs': 'no'},
-    {'Collect TIR info': 'no'},
-    {'Mult. Data Streams': 'no'},
-    {'Client Encrypt': 'no'},
-    {'Checkpoint': 'no'},
-    {'Policy Priority': '0'},
-    {'Max Jobs/Policy': 'Unlimited'},
-    {'Disaster Recovery': '0'},
-    {'Collect BMR info': 'no'},
-    {'Residence': 'stu_disk_nb5250'},
-    {'Volume Pool': 'NetBackup'},
-    {'Server Group': 'Any'},
-    {'Keyword': '(none specified)'},
-    {'Data Classification': '-'},
-    {'Residence is Storage Lifecycle Policy': 'no'},
-    {'Application Discovery': 'no'},
-    {'Discovery Lifetime': '0 seconds'},
-    {'ASC Application and attributes': '(none defined)'},
-    {'Granular Restore Info': 'no'},
-    {'Ignore Client Direct': 'no'},
-    {'Use Accelerator': 'yes'},
-    {'Optimized Backup': 'no'},
-    {'HW/OS/Client': 'Windows-x86   Windows2003   030-ace-cyber'},
-    {'Include:': 'C:\\'},
-    'D:\\',
-    {'Schedule': 'FULL'},
-    {'Type': 'Full Backup'},
-    {'Frequency': 'every 1 day'},
-    {'Synthetic': '0'},
-    {'Checksum Change Detection': '0'},
-    {'PFI Recovery': '0'},
-    {'Maximum MPX': '1'},
-    {'Retention Level': '3 (1 month)'},
-    {'Number Copies': '1'},
-    {'Fail on Error': '0'},
-    {'Residence': '(specific storage unit not required)'},
-    {'Volume Pool': '(same as policy volume pool)'},
-    {'Server Group': '(same as specified for policy)'},
-    {'Residence is Storage Lifecycle Policy': '0'},
-    {'Daily Windows': ''},
-    'Sunday     01:00:00  -->  Sunday     04:00:00',
-    'Monday     01:00:00  -->  Monday     04:00:00',
-    'Tuesday    01:00:00  -->  Tuesday    04:00:00',
-    'Wednesday  01:00:00  -->  Wednesday  04:00:00',
-    'Thursday   01:00:00  -->  Thursday   04:00:00',
-    'Friday     01:00:00  -->  Friday     04:00:00',
-    'Saturday   01:00:00  -->  Saturday   04:00:00',
-    {'Schedule': 'FULL'},
-    {'Type': 'Full Backup'},
-    {'Frequency': 'every 1 day'},
-    {'Synthetic': '0'},
-    {'Checksum Change Detection': '0'},
-    {'PFI Recovery': '0'},
-    {'Maximum MPX': '1'},
-    {'Retention Level': '3 (1 month)'},
-    {'Number Copies': '1'},
-    {'Fail on Error': '0'},
-    {'Residence': '(specific storage unit not required)'},
-    {'Volume Pool': '(same as policy volume pool)'},
-    {'Server Group': '(same as specified for policy)'},
-    {'Residence is Storage Lifecycle Policy': '0'},
-    {'Daily Windows': ''},
-    'Sunday     01:00:00  -->  Sunday     04:00:00',
-    'Monday     01:00:00  -->  Monday     04:00:00',
-    'Tuesday    01:00:00  -->  Tuesday    04:00:00',
-    'Wednesday  01:00:00  -->  Wednesday  04:00:00',
-    'Thursday   01:00:00  -->  Thursday   04:00:00',
-    'Friday     01:00:00  -->  Friday     04:00:00',
-    'Saturday   01:00:00  -->  Saturday   04:00:00'
-]
+    unit_name_restrict = ['Include', 'Daily Windows', 'HW/OS/Client']
+    if unit_name not in unit_name_restrict:
+        print("조건에 없는 내용입니다.")
+        return data_param
 
-def daily_windows_refine(data_param):
-    print(data_param)
+    for i in range(0, len(data_param)):
+
+        if unit_name in data_param[i] \
+                and type(data_param[i]) == dict:
+            insert_array = []
+
+            if data_param[i][unit_name] != '' :
+                insert_array.append(data_param[i][unit_name])
+
+            ## 추가
+            not_in_word = ""
+            if unit_name == 'HW/OS/Client':
+                not_in_word = 'Include'
+            elif unit_name == 'Include':
+                not_in_word = 'Schedule'
+            else:
+                not_in_word = 'Schedule'
+
+            j = 1
+            while i+j < len(data_param) \
+                and not_in_word not in data_param[i+j] \
+                and type(data_param[i+j]) != dict:
+                insert_array.append(data_param[i+j])
+                j += 1
+
+            # 추가
+            data_param[i][unit_name] = insert_array
+        # i 추가
+        i += 1
+
+    return data_param
+
+def residence_refine(data_param):
+    # (specific storage unit not required) 이것도 나중에 처리
+    residence_count = 0
+    for data in data_param:
+        if type(data) != dict:
+            continue
+
+        keyname = list(data.keys())[0]
+        if keyname != 'Residence':
+            continue
+
+        residence_count += 1
+
+        if residence_count >= 2:
+            data['Other Residence'] = data.pop('Residence')
+
+    return data_param
+
+def calendar_refine(data_param):
+    # calendar 있으면 처리
+    for i in range(0, len(data_param)):
+        if type(data_param[i]) != dict:
+            continue
+
+        keyname = list(data_param[i].keys())[0]
+        if keyname != 'Calendar sched':
+            continue
+
+        insert_array = []
+        j = 2
+        while type(data_param[i+j]) != dict \
+                and 'Excluded Dates----------' not in data_param[i+j] :
+            insert_array.append(data_param[i+j])
+            j += 1
+
+        data_param[i]['Calendar sched'] = insert_array
+
+    return data_param
+
+# 여기서 다시 시작
+def daily_windows_refine_for_7days(data_param):
+    # daily windows 정리
+    daily_windows_str = 'Daily Windows'
+    none_defined_str = '(none defined)'
+    everyday_str = 'Everyday '
+
+    for data in data_param:
+        if type(data) != dict \
+                or list(data.keys())[0] != daily_windows_str \
+                or data.get(daily_windows_str) == [] \
+                or data.get(daily_windows_str)[0] == none_defined_str :
+            continue
+
+        for i in range(0, len(data.get(daily_windows_str))):
+            data.get(daily_windows_str)[i] = \
+                data.get(daily_windows_str)[i].split()[0] \
+                + ' ' + \
+                data.get(daily_windows_str)[i].split()[1]
+
+        if len(data.get(daily_windows_str)) == 7:
+            j = 0
+            measure_str = data.get(daily_windows_str)[0].split()[1]
+            for d in data.get(daily_windows_str):
+                if d.split()[1] != measure_str:
+                    j = 0
+                j += 1
+
+            if j == 7:
+                data[daily_windows_str] = [everyday_str + measure_str]
 
 
-daily_windows_refine(datas)
+    return data_param
+
+def none_refine(data_param):
+    # none 이나 [] 처리
+    residence_count = 0
+    for data in data_param:
+        if type(data) != dict:
+            continue
+
+        keyname = list(data.keys())[0]
+        if not data[keyname]:
+            data[keyname] = ['(none defined)']
+
+    return data_param
