@@ -59,8 +59,8 @@ def data_merge_with_empty(ws, row_num, li):
                 for k in ws.cell(row=i, column=j).value:
                     if '\n' == k:
                         count += 1
-                ws.row_dimensions[i].height = 17.5
-                if ws.row_dimensions[i].height < (count // (merge_cell_count+1)) * 20:
+                ws.row_dimensions[i].height = 17
+                if ws.row_dimensions[i].height < ((count // (merge_cell_count+1)) * 16.88) + 17:
                     for l in range(i, i + merge_cell_count + 1):
-                        ws.row_dimensions[l].height = (count // (merge_cell_count+1)) * 20
+                        ws.row_dimensions[l].height = round((count // (merge_cell_count+1)) * 16.88, 2) + 17
 

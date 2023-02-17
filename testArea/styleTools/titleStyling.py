@@ -17,3 +17,6 @@ def title_styling(ws, li):
 
         elif str(ws[item].value) == 'Include':
             ws[item].value = 'Backup Selection'
+
+        elif str(ws[item].value) == 'Retention Level':
+            ws[item].value = 'Retention'

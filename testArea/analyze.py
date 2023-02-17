@@ -90,12 +90,12 @@ def execute(sheet_name, ws, lines):
     for policy_num in range(1, len(analyze_txt_lines)):
 
         datas = putInArrayAsDict.put_in_array_as_dict(analyze_txt_lines[policy_num], not_in_the_list)
-
+        # refine
         datas = dataRefine.data_refine('HW/OS/Client', datas)
         datas = dataRefine.data_refine('Include', datas)
         datas = dataRefine.data_refine('Daily Windows', datas)
-
         datas = dataRefine.residence_refine(datas)
+        datas = dataRefine.retention_refine(datas)
         datas = dataRefine.calendar_refine(datas)
         datas = dataRefine.daily_windows_refine_for_7days(datas)
         datas = dataRefine.none_refine(datas)

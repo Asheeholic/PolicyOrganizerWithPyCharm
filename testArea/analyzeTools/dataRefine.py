@@ -63,6 +63,18 @@ def residence_refine(data_param):
 
     return data_param
 
+def retention_refine(data_param):
+    # 보관주기 바꾸기
+    for data in data_param:
+        if type(data) != dict or \
+                'Retention Level' != list(data.keys())[0]:
+            continue
+
+        data['Retention Level'] = \
+            data['Retention Level'].split('(')[1].split(')')[0].upper()
+
+    return data_param
+
 def calendar_refine(data_param):
     # calendar 있으면 처리
     for i in range(0, len(data_param)):

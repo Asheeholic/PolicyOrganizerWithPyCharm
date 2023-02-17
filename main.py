@@ -6,7 +6,7 @@
 from flask import *
 
 # local
-from testArea import makeXlsx
+from applications.analyzeBppllistTxt import makeXlsx
 import applications.loadFile as loadFile
 import applications.loadTxtList as loadTxtList
 import applications.loadXlsxList as loadXlsxList
