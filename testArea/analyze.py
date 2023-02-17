@@ -1,5 +1,3 @@
-# 20221111 nutanix update, windows update
-
 # External import
 from openpyxl.styles import Alignment
 

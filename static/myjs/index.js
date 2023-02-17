@@ -31,8 +31,7 @@ const fileTextListFunc = () => {
         // async를 끈다. 동기적으로 실행하게 됨.
         success : function (responce) {
             console.log(responce.result)
-            result = responce.result
-
+            result = responce.result.sort()
             drawTextListFunc("txtList", result)
         },
         error : function() {
@@ -54,7 +53,7 @@ const fileXlsxListFunc = () => {
         // async를 끈다. 동기적으로 실행하게 됨.
         success : function (responce) {
             console.log(responce.result)
-            result = responce.result
+            result = responce.result.sort()
 
             drawTextListFunc("xlsxList", result)
         },

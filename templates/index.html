@@ -35,8 +35,8 @@
         <div class="container p-2">
             <div class="">
 
-                <h1 class="display-5">NetBackup 정책 분석기 1.0v</h1>
-                <p class="fs-6 text-end">제작자 : 한재호</p>
+                <h1 class="display-5">NetBackup 정책 분석기 ver 1.1</h1>
+                <p class="fs-6 text-end">제작자 : Asheeholic (한재호)</p>
 
             </div>
             <div>
@@ -70,17 +70,23 @@
                       enctype="multipart/form-data"> -->
 
         </div>
-        <footer class="fixed-bottom p-3 d-flex justify-content-center bg-dark">
+        <footer class="fixed-bottom p-3 d-flex justify-content-center bg-dark"
+                data-bs-toggle="tooltip" data-bs-placement="top" title="김세훈 바보 ㅋㅋ">
             <div class="lead text-white">
                 모든 파일은 업로드 후 3일 뒤에 자동 삭제 됩니다.
             </div>
         </footer>
+
     </div>
-
-
 
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/bootstrap.bundle.js"></script>
     <script src="/static/myjs/index.js"></script>
+    <script>
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    </script>
 </body>
 </html>
