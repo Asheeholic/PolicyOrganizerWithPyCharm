@@ -19,7 +19,7 @@ def execute(txt_dir, xlsx_dir, txt_file):
 
     font_size = 11 # 엑셀 폰트 사이즈
     font_family = 'consolas' # 엑셀 폰트 패밀리
-    width_rate = 0.8 # 엑셀 가로 넓이 배율
+    width_rate = 1 # 엑셀 가로 넓이 배율
 
     # 파일 열기
     file = open(txt_dir + txt_file, encoding="UTF-8")

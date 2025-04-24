@@ -22,7 +22,7 @@ def data_styling(ws, row_num, li, width_rate, font_size, font_family):
                 max_length = max(max_length, max(len(line) for line in str(cell_value).split('\n')))
             
         calculated_width = (max_length * width_rate)
-        added_width = 6  # 추가 넓이
+        added_width = 2 # 추가 넓이
 
         # 넓이 고정
         ws.column_dimensions[i].width = calculated_width + added_width
@@ -75,4 +75,21 @@ def data_merge_with_empty(ws, row_num, li):
                 if ws.row_dimensions[i].height < ((count // (merge_cell_count+1)) * 16.88) + 17:
                     for l in range(i, i + merge_cell_count + 1):
                         ws.row_dimensions[l].height = round((count // (merge_cell_count+1)) * 16.88, 2) + 17
+
+
+                # cell_value = ws.cell(row=i, column=j).value
+                # newline_count = cell_value.count('\n') if cell_value else 0  # 개행 문자 수 계산
+                
+                # # test
+                # if (i == 7 and j == 144):
+                #    print(cell_value)
+                #    print(newline_count)
+
+                # # Consolas 11pt 폰트 기준으로 높이 계산
+                # line_height = 17.5  # 한 줄 높이 (17~18pt)
+                # required_height = (newline_count + 1) * line_height
+
+                # # 병합된 셀들의 높이를 조정
+                # for row in range(i, i + merge_cell_count + 1):
+                #     ws.row_dimensions[row].height = required_height
 
