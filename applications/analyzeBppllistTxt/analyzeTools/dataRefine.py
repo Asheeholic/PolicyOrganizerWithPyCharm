@@ -130,6 +130,28 @@ def daily_windows_refine_for_7days(data_param):
 
     return data_param
 
+
+## 2025.04.24 Network Directory Backup Added start
+def network_backup_refine(data_param):
+
+    windows_network_backup_str = 'Backup network drvs'
+    standard_network_backup_str = 'Follow NFS Mounts'
+
+    combined_key = 'Network Directory Backup'
+
+    for data in data_param:
+        if type(data) != dict:
+            continue
+
+        if windows_network_backup_str in data:
+            data[combined_key] = data.pop(windows_network_backup_str)
+        elif standard_network_backup_str in data:
+            data[combined_key] = data.pop(standard_network_backup_str)
+
+    return data_param
+
+## 2025.04.24 Network Directory Backup Added end
+
 def none_refine(data_param):
     # none 이나 [] 처리
     residence_count = 0

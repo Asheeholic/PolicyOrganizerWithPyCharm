@@ -6,6 +6,7 @@
         'Active',
         'Residence', # storage unit
         'HW/OS/Client',
+        'Network Directory Backup', # Network Directory Backup ## 2025.04.24
         'Include', # backup selection
         'Schedule', # Schedule name
         'Type', # schedule type

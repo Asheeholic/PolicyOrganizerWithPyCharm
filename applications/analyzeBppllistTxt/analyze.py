@@ -56,6 +56,7 @@ def execute(sheet_name, ws, lines):
         'Active',
         'Residence',  # storage unit
         'HW/OS/Client',
+        'Network Directory Backup', # Network Directory Backup ## 2025.04.24
         'Include',  # backup selection
         'Schedule',  # Schedule name
         'Type',  # schedule type
@@ -92,6 +93,11 @@ def execute(sheet_name, ws, lines):
         datas = dataRefine.data_refine('HW/OS/Client', datas)
         datas = dataRefine.data_refine('Include', datas)
         datas = dataRefine.data_refine('Daily Windows', datas)
+
+        ## 2025.04.24 Network Directory Backup Added start
+        datas = dataRefine.network_backup_refine(datas) 
+        ## 2025.04.24 Network Directory Backup Added end
+
         datas = dataRefine.residence_refine(datas)
         datas = dataRefine.retention_refine(datas)
         datas = dataRefine.calendar_refine(datas)
