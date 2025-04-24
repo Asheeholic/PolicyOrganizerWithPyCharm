@@ -1,19 +1,31 @@
 # External import
 from openpyxl.styles import Alignment, Font, PatternFill
 
-def data_styling(ws, row_num, li, width_rate):
+def data_styling(ws, row_num, li, width_rate, font_size, font_family):
     #  모든 행에 적용
+    # 데이터에 개행도 모두 적용시키기 위한 작업 Alignment(wrapText=True)
     for i in li:
-        width = 0
+        #  width = 0
+        max_length = 0  # 최대 길이
+
         for j in range(1, row_num):
             ws[i + str(j)].alignment = Alignment(horizontal='left', vertical='center', wrapText=True)
+            ws[i + str(j)].font = Font(size=font_size, bold=False, name=font_family)
             # 제일 큰 행을 기준으로 넣기
-            for k in str(ws[i + str(j)].value).split('\n'):
-                if width < len(k):
-                    width = len(k)
+            # for k in str(ws[i + str(j)].value).split('\n'):
+                # if width < len(k):
+                    # width = len(k)
+
+            cell_value = ws[i + str(j)].value
+            if cell_value:
+                # 문자열 길이 계산 (개행 문자로 나뉜 각 줄의 최대 길이)
+                max_length = max(max_length, max(len(line) for line in str(cell_value).split('\n')))
+            
+        calculated_width = (max_length * width_rate)
+        added_width = 6  # 추가 넓이
 
         # 넓이 고정
-        ws.column_dimensions[i].width = (width * width_rate) + 4
+        ws.column_dimensions[i].width = calculated_width + added_width
 
     # print(ws["E21"].value)
     # count = 0

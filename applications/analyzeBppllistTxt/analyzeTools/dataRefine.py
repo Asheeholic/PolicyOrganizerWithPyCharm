@@ -139,18 +139,44 @@ def network_backup_refine(data_param):
 
     combined_key = 'Network Directory Backup'
 
+    found = False
+
     for data in data_param:
         if type(data) != dict:
             continue
 
         if windows_network_backup_str in data:
             data[combined_key] = data.pop(windows_network_backup_str)
+            found = True
         elif standard_network_backup_str in data:
             data[combined_key] = data.pop(standard_network_backup_str)
+            found = True
+
+    # 키가 없으면 그냥 '' 처리
+    if not found:
+        data_param.append({combined_key: ['(none defined)']})
 
     return data_param
 
 ## 2025.04.24 Network Directory Backup Added end
+
+## 2025.04.24 Clients 를 HW/OS/Client로 바꾸기 start
+def clients_refine(data_param):
+    # Clients 를 HW/OS/Client로 바꾸기
+    clients_str = 'Clients'
+    hw_os_client_str = 'HW/OS/Client'
+
+    for data in data_param:
+        if type(data) != dict or \
+                list(data.keys())[0] != clients_str:
+            continue
+
+        data[hw_os_client_str] = data.pop(clients_str)
+
+    return data_param
+
+## 2025.04.24 Clients 를 HW/OS/Client로 바꾸기 end
+
 
 def none_refine(data_param):
     # none 이나 [] 처리

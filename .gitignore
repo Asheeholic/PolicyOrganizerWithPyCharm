@@ -176,5 +176,6 @@ pyrightconfig.json
 # Test Directory
 /txt-dir/*
 /xlsx-dir/*
+/testArea/*
 
 # End of https://www.toptal.com/developers/gitignore/api/python

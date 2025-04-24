@@ -17,7 +17,9 @@ def execute(txt_dir, xlsx_dir, txt_file):
     # xlsx_dir = 'xlsx-dir/'
     # txt_file = 'bppllist.txt'
 
-    width_rate = 1.3 # 엑셀 가로 넓이 배율
+    font_size = 11 # 엑셀 폰트 사이즈
+    font_family = 'consolas' # 엑셀 폰트 패밀리
+    width_rate = 0.8 # 엑셀 가로 넓이 배율
 
     # 파일 열기
     file = open(txt_dir + txt_file, encoding="UTF-8")
@@ -28,7 +30,7 @@ def execute(txt_dir, xlsx_dir, txt_file):
     row_num = analyze.execute(sheet_name, ws, lines)
 
     # 스타일러 실행 (style.py)
-    style.execute(ws, row_num, width_rate)
+    style.execute(ws, row_num, width_rate, font_size, font_family)
 
     # 저장
     file.close()

@@ -94,9 +94,12 @@ def execute(sheet_name, ws, lines):
         datas = dataRefine.data_refine('Include', datas)
         datas = dataRefine.data_refine('Daily Windows', datas)
 
-        ## 2025.04.24 Network Directory Backup Added start
+        ## 2025.04.24 start
+        ## Clients to HW/OS/Client (because of empthy)
+        datas = dataRefine.clients_refine(datas) 
+        ## Network Directory Backup Added start
         datas = dataRefine.network_backup_refine(datas) 
-        ## 2025.04.24 Network Directory Backup Added end
+        ## 2025.04.24 end
 
         datas = dataRefine.residence_refine(datas)
         datas = dataRefine.retention_refine(datas)
