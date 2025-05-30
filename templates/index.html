@@ -1,92 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetBackup Policy Analyzer</title>
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+{% extends "base.html" %}
 
-    <!--네비게이션 시작-->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark pb-3">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="/">GT Solution</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="/">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/solution">방법</a>
-            </li>
-          </ul>
+{% block content %}
+    <div>
+        <div class="lead">
+            보안상으로 인해 영어 파일명만 가능!
         </div>
-      </div>
-    </nav>
-    <!-- 네비게이션 끝 -->
-
-    <div class="container-fluid">
-
-        <div class="container p-2">
-            <div class="">
-
-                <h1 class="display-5">NetBackup 정책 분석기 ver 1.2</h1>
-                <p class="fs-6 text-end">제작자 : Asheeholic (한재호)</p>
-
-            </div>
-            <div>
-                <div class="lead">
-                    보안상으로 인해 영어 파일명만 가능!
-                </div>
-                <div class="alertContainer">
-
-                </div>
-                <div class="form-group">
-                    <form class="fileUploadForm row" enctype="multipart/form-data">
-                        <div class="col-8">
-                            <input class="inputFile form-control" type="file" name="file" />
-                        </div>
-                        <div class="col-4">
-                            <button class="btn btn-dark" type="button" onclick="active()">확인</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="fileList d-flex justify-content-around">
-                <div class="txtList d-flex flex-column p-1 m-4 border border-0 rounded bg-light">
-                    <p class="fw-normal text-center m-2">텍스트 파일</p>
-                </div>
-                <div class="xlsxList d-flex flex-column p-1 m-4 border border-0 rounded bg-light">
-                    <p class="fw-normal text-center m-2">엑셀 파일</p>
-                </div>
-            </div>
-            <!-- <form class="fileUploadForm" action="http://localhost:5000/fileupload" method="POST"
-                      enctype="multipart/form-data"> -->
+        <div class="alertContainer">
 
         </div>
-        <footer class="fixed-bottom p-3 d-flex justify-content-center bg-dark"
-                data-bs-toggle="tooltip" data-bs-placement="top" title="김세훈 바보 ㅋㅋ">
-            <div class="lead text-white">
-                모든 파일은 업로드 후 3일 뒤에 자동 삭제 됩니다.
-            </div>
-        </footer>
-
+        <div class="form-group">
+            <form class="fileUploadForm row" enctype="multipart/form-data">
+                <div class="col-8">
+                    <input class="inputFile form-control" type="file" name="file" />
+                </div>
+                <div class="col-4">
+                    <button class="btn btn-dark" type="button" onclick="active()">확인</button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <script src="/static/js/jquery.min.js"></script>
-    <script src="/static/js/bootstrap.bundle.js"></script>
-    <script src="/static/myjs/index.js"></script>
-    <script>
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
-    </script>
-</body>
-</html>
+    <div class="fileList d-flex justify-content-around">
+        <div class="txtList d-flex flex-column p-1 m-4 border border-0 rounded bg-light">
+            <p class="fw-normal text-center m-2">텍스트 파일</p>
+        </div>
+        <div class="xlsxList d-flex flex-column p-1 m-4 border border-0 rounded bg-light">
+            <p class="fw-normal text-center m-2">엑셀 파일</p>
+        </div>
+    </div>
+<!-- <form class="fileUploadForm" action="http://localhost:5000/fileupload" method="POST"
+            enctype="multipart/form-data"> -->
+{% endblock %}
+    
+
+{% block scripts %}
+<script>
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+</script>
+{% endblock %}

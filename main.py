@@ -63,7 +63,7 @@ if __name__ == '__main__':
     print_hi('PyCharm')
     print(app.config)
     # ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-    # ssl_context.load_cert_chain(certfile='cert.pem', keyfile='key.pem', password='gkstjdrb95')
+    # ssl_context.load_cert_chain(certfile='cert.pem', keyfile='key.pem')
     # app.run(host='0.0.0.0', port=8000, ssl_context=ssl_context)
     app.run(host='0.0.0.0', port=8000)
 

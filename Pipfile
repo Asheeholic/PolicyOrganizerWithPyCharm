@@ -8,6 +8,11 @@ flask = "*"
 openpyxl = "*"
 flask-script = "*"
 werkzeug = "*"
+flask-wtf = "*"
+flask-login = "*"
+qrcode = "*"
+pillow = "*"
+pyotp = "*"
 
 [dev-packages]
 
