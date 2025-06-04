@@ -15,6 +15,10 @@ pillow = "*"
 pyotp = "*"
 tinydb = "*"
 flask-sessions = "*"
+wtforms = "*"
+flask-mail = "*"
+itsdangerous = "*"
+email-validator = "*"
 
 [dev-packages]
 

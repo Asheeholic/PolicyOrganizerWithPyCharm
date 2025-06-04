@@ -13,8 +13,13 @@
                 <div class="card-body">
                     <div class="text-center mb-4">
                         <p>Please scan this QR code with your authenticator app:</p>
-                        <img src="data:image/png;base64,{{ qr_code }}" 
-                             alt="QR Code" class="img-fluid my-4">
+                        {% if qr_code %}
+                            <img src="data:image/png;base64,{{ qr_code }}" 
+                                 alt="QR Code" 
+                                 class="img-fluid my-4">
+                        {% else %}
+                            <p class="text-danger">Error: QR code not generated</p>
+                        {% endif %}
                     </div>
                     <div class="alert alert-info">
                         <h6>Instructions:</h6>

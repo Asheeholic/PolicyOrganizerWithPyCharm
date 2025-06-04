@@ -6,14 +6,34 @@ import qrcode
 import base64
 from io import BytesIO
 from tinydb import Query
+from datetime import datetime, timedelta, timezone
 
 class User(UserMixin):
     def __init__(self, user_data):
+        if user_data is None:
+            raise ValueError("User data cannot be None")
+
         self.id = user_data.get('username')
         self.username = user_data.get('username')
+        self.email = user_data.get('email')
         self.password_hash = user_data.get('password')
         self.otp_secret = user_data.get('otp_secret')
         self.otp_enabled = user_data.get('otp_enabled', False)
+        self.email_verified = user_data.get('email_verified', False)
+        self.verification_code = user_data.get('verification_code')
+        self.verification_code_expires = user_data.get('verification_code_expires')
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
 
     @staticmethod
     def get(user_id):
@@ -22,18 +42,42 @@ class User(UserMixin):
         return User(user_data) if user_data else None
 
     @staticmethod
-    def create_user(username, password):
+    def create_user(username, email, password,  verification_code):
         if User.get(username):
             raise ValueError('Username already exists')
             
         user = {
             'username': username,
+            'email': email,
             'password': generate_password_hash(password),
+            'verification_code': verification_code,
+            'verification_code_expires': (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat(),
+            'email_verified': False,
             'otp_secret': None,
             'otp_enabled': False
         }
         users_table.insert(user)
         return User(user)
+
+    @staticmethod
+    def verify_email_code(email, code):
+        User_query = Query()
+        user = users_table.get(User_query.email == email)
+        
+        if not user:
+            return False
+            
+        if (user['verification_code'] != code or 
+            datetime.fromisoformat(user['verification_code_expires']) < datetime.now(timezone.utc)):
+            return False
+            
+        users_table.update({
+            'email_verified': True,
+            'verification_code': None,
+            'verification_code_expires': None
+        }, User_query.email == email)
+        
+        return True
     
     @staticmethod
     def verify_password(user, password):
@@ -41,10 +85,13 @@ class User(UserMixin):
 
     @staticmethod
     def verify_otp(user, otp_code):
-        if not user.otp_enabled or not user.otp_secret:
-            return True
-        totp = pyotp.TOTP(user.otp_secret)
-        return totp.verify(otp_code)
+        try:
+            if not user.otp_secret:
+                return False
+            totp = pyotp.TOTP(user.otp_secret)
+            return totp.verify(otp_code)
+        except Exception as e:
+            return False
 
     @staticmethod
     def setup_mfa(username):
@@ -63,16 +110,17 @@ class User(UserMixin):
 
     @staticmethod
     def enable_mfa(username, otp_code):
-        User = Query()
-        user = users_table.get(User.username == username)
-        if not user or not user.get('otp_secret'):
-            return False
+        User_query = Query()
+        user = users_table.get(User_query.username == username)
+        
+        if not user:
+            raise ValueError("User not found")
             
-        totp = pyotp.TOTP(user['otp_secret'])
-        if totp.verify(otp_code):
-            users_table.update({'otp_enabled': True}, User.username == username)
-            return True
-        return False
+        if not User.verify_otp(User(user), otp_code):
+            raise ValueError("Invalid OTP code")
+            
+        users_table.update({'otp_enabled': True}, User_query.username == username)
+        return True
 
     @staticmethod
     def get_otp_qr_url(username, otp_secret):
@@ -81,5 +129,3 @@ class User(UserMixin):
             username,
             issuer_name="NBU Policy Analyzer"
         )
-
-    # ... existing methods ...

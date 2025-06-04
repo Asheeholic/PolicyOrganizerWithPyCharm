@@ -178,4 +178,12 @@ pyrightconfig.json
 /xlsx-dir/*
 /testArea/*
 
+# personal information exeptions
+database/auth.json
+database/email.json
+
+# session files
+flask_session/*
+
 # End of https://www.toptal.com/developers/gitignore/api/python
+database/auth.json
