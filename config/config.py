@@ -57,8 +57,8 @@ class Config:
     MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))
     MAIL_USE_TLS = True
     ## Todo : Need Fix
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'gkdtjdrb95@gmail.com')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'pxukhlvtewdwmqjl')
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'xxxxxxxxxxxxx@gmail.com')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'xxxxxxxxxxxxxxxx')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'test@gtsolution.co.kr')
 
 def create_app():
