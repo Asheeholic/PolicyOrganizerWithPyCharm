@@ -40,6 +40,14 @@
       </div>
     </nav>
 
+    <!-- Debug info - development only -->
+    {% if config['DEBUG'] %}
+    <div class="debug-info" style="display:none;">
+        <p>Authenticated: {{ current_user.is_authenticated }}</p>
+        <p>Username: {{ current_user.username if current_user.is_authenticated else 'Not logged in' }}</p>
+    </div>
+    {% endif %}
+
     <div class="container-fluid mb-5">
         <div class="">
           <h1 class="display-5">NetBackup 정책 분석기 1.2v</h1>

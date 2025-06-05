@@ -19,7 +19,7 @@ class Config:
     """
     # Environment settings
     ENV = os.environ.get('FLASK_ENV', 'development')
-    DEBUG = ENV == 'development'
+    # DEBUG = ENV == 'development'
     TESTING = False
 
     # Base directory
@@ -41,6 +41,10 @@ class Config:
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_FILE_DIR = os.path.join(BASE_DIR, 'flask_session')
+
+    # edit
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_DOMAIN = None  # 이 값을 None으로 설정
     
     # File upload settings
     MAX_CONTENT_LENGTH = 32 * 1024 * 1024  # 32MB max file size
@@ -60,6 +64,12 @@ class Config:
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'gkdtjdrb95@gmail.com')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'pxukhlvtewdwmqjl')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'test@gtsolution.co.kr')
+
+
+    #   Logging configuration
+    LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs')
+    LOG_FILE = os.path.join(LOG_DIR, 'nbupolicy.log')
+    LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
 def create_app():
     app = Flask(__name__, 
@@ -115,20 +125,24 @@ def create_app():
             message="Something went wrong. Please try again later."), 500
     
 
-    # Setup logging
-    if not app.debug:
-        if not os.path.exists('logs'):
-            os.mkdir('logs')
-        file_handler = RotatingFileHandler('logs/nbupolicy.log', 
-                                         maxBytes=10240, 
-                                         backupCount=10)
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s '
-            '[in %(pathname)s:%(lineno)d]'
-        ))
-        file_handler.setLevel(logging.INFO)
-        app.logger.addHandler(file_handler)
-        app.logger.setLevel(logging.INFO)
-        app.logger.info('NBU Policy Analyzer startup')
+   # Setup logging
+    if not os.path.exists(Config.LOG_DIR):
+        os.makedirs(Config.LOG_DIR)
+    
+    # Configure logging
+    formatter = logging.Formatter(Config.LOG_FORMAT)
+    
+    file_handler = RotatingFileHandler(
+        Config.LOG_FILE,
+        maxBytes=10240000,  # 10MB
+        backupCount=5
+    )
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(Config.LOG_LEVEL)
+    
+    # Add handlers to app logger
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(Config.LOG_LEVEL)
+    app.logger.info('Application startup')
     
     return app

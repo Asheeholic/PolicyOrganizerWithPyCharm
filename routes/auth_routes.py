@@ -17,11 +17,17 @@ auth = Blueprint('auth', __name__)
 # This route handles user login, including optional MFA setup if the user has not enabled it yet.
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+
+    current_app.logger.debug("Login route accessed")
+
     if current_user.is_authenticated:
         return redirect(url_for('main.go_home'))
         
     form = LoginForm()
     if form.validate_on_submit():
+
+        current_app.logger.debug(f"Login attempt for username: {form.username.data}")
+
         user = User.get(form.username.data)  # get_user를 get으로 변경
         if user and User.verify_password(user, form.password.data):
             if not user.otp_enabled:
@@ -109,6 +115,14 @@ def setup_mfa():
 # This route handles user registration, including email verification.
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
+
+    current_app.logger.debug("Registration route accessed")
+    current_app.logger.debug(f"Current user: {current_user.username if current_user.is_authenticated else 'Not logged in'}")
+    # If the user is already authenticated, redirect to home
+    if current_user.is_authenticated:
+        flash('You are already logged in.', 'warning')
+        return redirect(url_for('main.go_home'))
+
     form = RegisterForm()
     if form.validate_on_submit():
         try:
