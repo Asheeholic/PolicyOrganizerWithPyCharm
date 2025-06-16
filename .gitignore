@@ -181,9 +181,12 @@ pyrightconfig.json
 # personal information exeptions
 database/auth.json
 database/email.json
+utils/mail-info.json
 
 # session files
 flask_session/*
 
+
+
 # End of https://www.toptal.com/developers/gitignore/api/python
-database/auth.json
+

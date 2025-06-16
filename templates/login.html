@@ -4,16 +4,15 @@
 <div class="container p-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="text-center">Login</h3>
+            <div class="card">                <div class="card-header">
+                    <h3 class="text-center">로그인</h3>
                 </div>
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" action="{{ url_for('auth.login') }}">
                         {{ form.csrf_token }}
                         <div class="mb-3">
-                            {{ form.username.label(class="form-label") }}
-                            {{ form.username(class="form-control") }}
+                            {{ form.username.label(class="form-label", text="아이디") }}
+                            {{ form.username(class="form-control", placeholder="아이디를 입력하세요") }}
                             {% if form.username.errors %}
                                 {% for error in form.username.errors %}
                                     <div class="text-danger">{{ error }}</div>
@@ -21,8 +20,8 @@
                             {% endif %}
                         </div>
                         <div class="mb-3">
-                            {{ form.password.label(class="form-label") }}
-                            {{ form.password(class="form-control") }}
+                            {{ form.password.label(class="form-label", text="비밀번호") }}
+                            {{ form.password(class="form-control", placeholder="비밀번호를 입력하세요") }}
                             {% if form.password.errors %}
                                 {% for error in form.password.errors %}
                                     <div class="text-danger">{{ error }}</div>
@@ -30,8 +29,8 @@
                             {% endif %}
                         </div>
                         <div class="mb-3">
-                            {{ form.otp.label(class="form-label") }}
-                            {{ form.otp(class="form-control") }}
+                            {{ form.otp.label(class="form-label", text="인증번호") }}
+                            {{ form.otp(class="form-control", placeholder="6자리 인증번호를 입력하세요") }}
                             {% if form.otp.errors %}
                                 {% for error in form.otp.errors %}
                                     <div class="text-danger">{{ error }}</div>
@@ -39,15 +38,27 @@
                             {% endif %}
                         </div>
                            <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Login</button>
+                            <button type="submit" class="btn btn-primary">로그인</button>
                         </div>
-                        <div class="text-center mt-3">
-                            <a href="{{ url_for('auth.register') }}">Need an account? Register</a>
-                        </div>
-                    </form>
+                    </form>                    
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('auth.register') }}">계정이 없으신가요? 회원가입</a>
+                        <br>
+                        <a href="{{ url_for('auth.forgot_password') }}">비밀번호를 잊으셨나요?</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    console.log('Form submitted');
+    console.log('CSRF Token:', document.querySelector('input[name="csrf_token"]').value);
+    console.log('Action URL:', this.action);
+    this.submit();
+});
+</script>
 {% endblock %}
