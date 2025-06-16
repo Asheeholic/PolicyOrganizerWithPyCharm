@@ -62,6 +62,7 @@ class Config:
     DB_DIR = os.path.join(BASE_DIR, 'database')
     DB_FILE = os.path.join(DB_DIR, 'auth.json')
 
+
     # Util directories
     UTIL_DIR = os.path.join(BASE_DIR, 'utils')
 
