@@ -107,3 +107,49 @@ class FileHandler:
         except Exception as e:
             current_app.logger.error(f"Download error: {str(e)}")
             return str(e)
+
+    @staticmethod
+    def delete_file(filename: str) -> bool:
+        """
+        Delete file from both txt and xlsx directories if they exist
+        
+        Args:
+            filename: Name of file to delete
+            
+        Returns:
+            bool: True if at least one file was deleted
+            
+        Raises:
+            FileError: If file deletion fails
+        """
+        txt_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        xlsx_path = os.path.join(current_app.config['XLSX_FOLDER'], filename.replace('.txt', '.xlsx'))
+        
+        deleted = False
+        errors = []
+
+        # Try to delete txt file if it exists
+        if os.path.exists(txt_path):
+            try:
+                os.remove(txt_path)
+                deleted = True
+                current_app.logger.info(f'Deleted text file: {txt_path}')
+            except Exception as e:
+                errors.append(f'Failed to delete text file: {str(e)}')
+                
+        # Try to delete xlsx file if it exists
+        if os.path.exists(xlsx_path):
+            try:
+                os.remove(xlsx_path)
+                deleted = True
+                current_app.logger.info(f'Deleted Excel file: {xlsx_path}')
+            except Exception as e:
+                errors.append(f'Failed to delete Excel file: {str(e)}')
+                
+        if errors:
+            raise FileError('\n'.join(errors))
+            
+        if not deleted:
+            raise FileError(f'No files found to delete: {filename}')
+            
+        return True

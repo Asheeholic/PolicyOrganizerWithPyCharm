@@ -85,6 +85,31 @@ def file_download(file_name: str):
         current_app.logger.error(f"Error downloading file {file_name}: {str(e)}")
         return jsonify({'error': 'Failed to download file'}), 500
 
+@file_bp.route('/delete/<file_name>', methods=['DELETE'])
+@login_required
+def file_delete(file_name: str) -> Dict[str, Any]:
+    """Delete a file
+    
+    Args:
+        file_name: Name of file to delete
+        
+    Returns:
+        JSON response with deletion result
+    """
+    try:
+        # 보안을 위해 파일명 검증
+        filename = secure_filename(file_name)
+        
+        # 파일 삭제 시도
+        FileHandler.delete_file(filename)
+        
+        current_app.logger.info(f"File deleted successfully: {filename}")
+        return jsonify({'message': f'파일이 성공적으로 삭제되었습니다.'}), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Error deleting file {file_name}: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 def allowed_file(filename: str) -> bool:
     """Check if file extension is allowed
     

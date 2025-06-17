@@ -184,14 +184,28 @@ const deleteFile = async (fileName) => {
     if (!confirm(`${fileName} 파일을 삭제하시겠습니까?`)) return;
     
     try {
+        showToast('파일 삭제 중...', 'info');
+        
         const response = await fetchWithCSRF(`/delete/${fileName}`, {
             method: 'DELETE'
         });
         
-        if (!response.ok) throw new Error('파일 삭제에 실패했습니다.');
+        const data = await response.json();
         
-        showToast(`${fileName} 파일이 삭제되었습니다.`);
-        fileGetAllFunc(); // 목록 새로고침
+        if (!response.ok) {
+            throw new Error(data.error || '파일 삭제에 실패했습니다.');
+        }
+        
+        showToast(data.message || '파일이 삭제되었습니다.', 'success');
+        
+        // DOM에서 실제 파일 항목 제거
+        const fileCard = document.querySelector(`[data-filename="${fileName}"]`);
+        if (fileCard) {
+            fileCard.remove();
+        }
+        
+        // 파일 목록 새로고침
+        fileGetAllFunc();
     } catch (error) {
         showToast(error.message, 'danger');
     }
