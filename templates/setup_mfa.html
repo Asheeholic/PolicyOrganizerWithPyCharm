@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Setup MFA{% endblock %}
+{% block title %}2단계 인증 설정{% endblock %}
 
 {% block content %}
 <div class="container p-5">
@@ -8,25 +8,25 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="text-center">Setup Two-Factor Authentication</h3>
+                    <h3 class="text-center">2단계 인증 설정</h3>
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-4">
-                        <p>Please scan this QR code with your authenticator app:</p>
+                        <p>인증앱으로 아래 QR 코드를 스캔해주세요:</p>
                         {% if qr_code %}
                             <img src="data:image/png;base64,{{ qr_code }}" 
-                                 alt="QR Code" 
+                                 alt="QR 코드" 
                                  class="img-fluid my-4">
                         {% else %}
-                            <p class="text-danger">Error: QR code not generated</p>
+                            <p class="text-danger">오류: QR 코드 생성 실패</p>
                         {% endif %}
                     </div>
                     <div class="alert alert-info">
-                        <h6>Instructions:</h6>
+                        <h6>설정 방법:</h6>
                         <ol class="mb-0">
-                            <li>Install Google Authenticator or similar TOTP app</li>
-                            <li>Scan the QR code above</li>
-                            <li>Enter the 6-digit code shown in your app</li>
+                            <li>Google Authenticator 또는 유사한 OTP 인증앱 설치</li>
+                            <li>위의 QR 코드 스캔</li>
+                            <li>앱에 표시되는 6자리 코드 입력</li>
                         </ol>
                     </div>
                     <form method="POST">
@@ -41,7 +41,7 @@
                             {% endif %}
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Verify & Enable MFA</button>
+                            <button type="submit" class="btn btn-primary">MFA 확인 및 활성화</button>
                         </div>
                     </form>
                 </div>

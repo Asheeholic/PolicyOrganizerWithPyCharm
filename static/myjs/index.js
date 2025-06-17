@@ -19,178 +19,185 @@ const drawTextListFunc = (divClassString, fileList) => {
     }
 }
 
-// get txt list
-const fileTextListFunc = () => {
-    let result = '';
-    $.ajax({
-        type: "GET",
-        url: "/fileTextList",
-        contentType: "application/json; charset=utf-8",
-        // 파일 전송시 false, 기본은 true, json 전송시 "application/json; charset=utf-8"
-        async: true,
-        // async를 끈다. 동기적으로 실행하게 됨.
-        success : function (responce) {
-            console.log(responce.result)
-            result = responce.result.sort()
-            drawTextListFunc("txtList", result)
-        },
-        error : function() {
-            alert("텍스트 로드 실패!");
-        }
+////// created by claude agent start //////
+// 알림 표시 유틸리티
+const showToast = (message, type = 'success') => {
+    const alertArea = document.getElementById('alertArea');
+    const alert = document.createElement('div');
+    
+    const iconClass = {
+        'success': 'check-circle',
+        'danger': 'times-circle',
+        'warning': 'exclamation-triangle',
+        'info': 'info-circle'
+    }[type];
+
+    alert.className = `alert alert-${type} d-flex align-items-center alert-dismissible fade show`;
+    alert.setAttribute('role', 'alert');
+    
+    alert.innerHTML = `
+        <i class="fas fa-${iconClass} me-2"></i>
+        <div>${message}</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="닫기"></button>
+    `;
+    
+    // 기존 알림 제거
+    alertArea.innerHTML = '';
+    alertArea.appendChild(alert);
+    
+    // 성공/실패 메시지는 3초 후 자동으로 사라지게 함
+    if (type === 'success' || type === 'danger') {
+        setTimeout(() => {
+            alert.remove();
+        }, 3000);
+    }
+};
+
+// 파일 카드 생성 함수
+const createFileCard = (fileName, type) => {
+    const card = document.createElement('div');
+    card.className = 'mb-2 w-100';
+    
+    card.innerHTML = `
+        <div class="d-flex align-items-center justify-content-between p-2 border rounded">
+            <div class="flex-grow-1 me-3 text-break">
+                ${fileName}
+            </div>
+            <div class="d-flex gap-2 flex-shrink-0">
+                <a href="/filedownload/${fileName}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-download">Download</i>
+                </a>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteFile('${fileName}')">
+                    <i class="fas fa-trash-alt">Delete</i>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    return card;
+};
+
+// 파일 리스트 렌더링 함수
+const renderFileList = (divClassString, fileList) => {
+    const fileListDiv = document.querySelector("." + divClassString);
+    fileListDiv.innerHTML = ''; // 기존 내용 삭제
+    
+    if (fileList.length === 0) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'text-center text-muted my-4';
+        emptyMessage.innerHTML = '파일이 없습니다.';
+        fileListDiv.appendChild(emptyMessage);
+        return;
+    }
+    
+    const listContainer = document.createElement('div');
+    listContainer.className = 'list-group list-group-flush';
+    fileListDiv.appendChild(listContainer);
+    
+    const type = divClassString === 'txtList' ? 'txt' : 'xlsx';
+    fileList.sort().reverse().forEach(fileName => {
+        listContainer.appendChild(createFileCard(fileName, type));
     });
-    return result;
+};
+
+////// created by claude agent end //////
+
+// CSRF 토큰 가져오기 함수
+const getCSRFToken = () => {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+};
+
+// fetch 요청에 CSRF 토큰을 포함하는 기본 헤더 설정
+const fetchWithCSRF = async (url, options = {}) => {
+    const csrfToken = getCSRFToken();
+    const defaultHeaders = {
+        'X-CSRFToken': csrfToken
+    };
+    
+    options.headers = {
+        ...defaultHeaders,
+        ...options.headers
+    };
+    
+    return fetch(url, options);
+};
+
+// get txt list
+const fileTextListFunc = async () => {
+    try {
+        const response = await fetchWithCSRF('/fileTextList');
+        if (!response.ok) throw new Error('텍스트 파일 목록을 가져오는데 실패했습니다.');
+        
+        const data = await response.json();
+        renderFileList('txtList', data.result);
+    } catch (error) {
+        showToast(error.message, 'danger');
+    }
 }
 
 // get xlsx list
-const fileXlsxListFunc = () => {
-    let result = '';
-    $.ajax({
-        type: "GET",
-        url: "/fileXlsxList",
-        contentType: "application/json; charset=utf-8",
-        // 파일 전송시 false, 기본은 true, json 전송시 "application/json; charset=utf-8"
-        async: true,
-        // async를 끈다. 동기적으로 실행하게 됨.
-        success : function (responce) {
-            console.log(responce.result)
-            result = responce.result.sort()
-
-            drawTextListFunc("xlsxList", result)
-        },
-        error : function() {
-            alert("엑셀 로드 실패!");
-        }
-    });
-    return result;
+const fileXlsxListFunc = async () => {
+    try {
+        const response = await fetchWithCSRF('/fileXlsxList');
+        if (!response.ok) throw new Error('엑셀 파일 목록을 가져오는데 실패했습니다.');
+        
+        const data = await response.json();
+        renderFileList('xlsxList', data.result);
+    } catch (error) {
+        showToast(error.message, 'danger');
+    }
 }
 
 // get Both list
 const fileGetAllFunc = () => {
-    // 기존 리스트 삭제
-    const txtList = document.querySelector(".txtList");
-    const xlsxList = document.querySelector(".xlsxList");
-
-    txtList.querySelectorAll('a').forEach( a => a.remove())
-    xlsxList.querySelectorAll('a').forEach( a => a.remove())
-
-    // 불러오기
-    fileTextListFunc(); fileXlsxListFunc();
+    fileTextListFunc();
+    fileXlsxListFunc();
 }
 
-/**
- * Upload Function
- * This function with python is file check for '.txt' file
- * and send flask server and save it.
-  */
-const fileUploadFunc = (fileSource, fileSourceName) => {
-    // console.log(fileSource);
-    // 파일을 보내기 위해서는 formData 안에 모든 정보를 담아서 보낸다.
-    const fileDetails = JSON.stringify({
-        name : fileSourceName
-    })
+// 파일 업로드 함수
+const fileUploadFunc = async (fileSource, fileSourceName) => {
+    try {
+        const fileDetails = JSON.stringify({ name: fileSourceName });
+        const formData = new FormData();
+        formData.append('body', fileDetails);
+        formData.append('file', fileSource);
+
+        const response = await fetchWithCSRF('/fileupload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) throw new Error('파일 업로드에 실패했습니다.');
+        
+        const data = await response.json();
+        showToast('파일이 성공적으로 업로드되었습니다.');
+        fileGetAllFunc(); // 목록 새로고침
+        return true;
+    } catch (error) {
+        showToast(error.message, 'danger');
+        return false;
+    }
+};
+
+// 파일 삭제 함수
+const deleteFile = async (fileName) => {
+    if (!confirm(`${fileName} 파일을 삭제하시겠습니까?`)) return;
     
-    let formData = new FormData();
-    formData.append('body', fileDetails);
-    formData.append('file', fileSource);
-
-    let result = false;
-
-    $.ajax({
-        type: "POST",
-        url: "/fileupload",
-        processData: false, 
-        // 파일 전송시 false, 기본은 true
-        contentType: false, 
-        // 파일 전송시 false, 기본은 true, json 전송시 "application/json; charset=utf-8"
-        data : formData,
-        async: false,
-        // async를 끈다. 동기적으로 실행하게 됨.
-        success : function (responce) {
-            let resultUploadTest = responce.result;
-            console.log(responce)
-            console.log(resultUploadTest);
-            if (!resultUploadTest.startsWith('INVALID') &&
-                !resultUploadTest.startsWith('NOT EXIST FILE')) {
-                result = true
-            } else {
-                alert("파일이 .txt 로 끝나지 않거나 txt 파일이 아닙니다.")
-            }
-        },
-        error : function() {
-            alert("파일 업로드 실패!");
-        }
-    });
-    return result;
-}
-
-// const fileDownloadFunc = (filename) => {}
-
-// Error Alert
-const alertActive = () => {
-
-    if (document.querySelector(".alert-danger")) {
-        return;
+    try {
+        const response = await fetchWithCSRF(`/delete/${fileName}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) throw new Error('파일 삭제에 실패했습니다.');
+        
+        showToast(`${fileName} 파일이 삭제되었습니다.`);
+        fileGetAllFunc(); // 목록 새로고침
+    } catch (error) {
+        showToast(error.message, 'danger');
     }
+};
 
-    const alertContainer = document.querySelector(".alertContainer");
-
-    /**
-     * <div class="alert alert-warning alert-dismissible fade show" role="alert">
-     *   <strong>Holy guacamole!</strong> You should check in on some of those fields below.
-     *   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-     *     <span aria-hidden="true">&times;</span>
-     *   </button>
-     * </div>
-      */
-    const alertDiv = document.createElement("div");
-    alertDiv.classList.add("alert", "alert-danger", "alert-dismissible", "fade", "show");
-    alertDiv.setAttribute("role", "alert")
-
-    const alertStrongInDiv = document.createElement("strong");
-    alertStrongInDiv.innerText += " Holy guacamole! "
-
-    const alertButtonInDiv = document.createElement("button");
-
-    alertButtonInDiv.classList.add("btn-close");
-    alertButtonInDiv.setAttribute("data-bs-dismiss", "alert");
-    alertButtonInDiv.setAttribute("aria-label", "Close");
-    const alertHidden = document.createElement("span");
-
-    alertHidden.setAttribute("aria-hidden", "true")
-
-    // 버튼 차일드
-    alertButtonInDiv.appendChild(alertHidden);
-
-    // 얼럿 차일드
-    alertDiv.appendChild(alertStrongInDiv);
-    alertDiv.innerHTML += " 파일명이나 파일을 체크해 주세요! "
-    alertDiv.appendChild(alertButtonInDiv)
-
-    alertContainer.appendChild(alertDiv)
-}
-
-// process active 
-const active = () => {
-    const fileUploadForm = document.querySelector(".fileUploadForm");
-    const fileSourceTag = fileUploadForm.querySelector("input");
-    const fileSource = fileSourceTag.files[0]
-    const fileSourceName = fileSourceTag.files[0].name;
-
-    // 값 초기화
-    fileSourceTag.value = ''
-    // file upload and checking
-    if (fileUploadFunc(fileSource, fileSourceName)) {
-        console.log('uploading success!') // true
-        fileGetAllFunc();
-    } else {
-        console.log('uploading fail!')
-        alertActive();
-    }
-}
-
-// initial javascript
-const init = () => {
+// 페이지 로드 시 파일 목록 가져오기
+document.addEventListener('DOMContentLoaded', () => {
     fileGetAllFunc();
-}
-
-init();
+});

@@ -73,8 +73,8 @@ class FileHandler:
         try:
             result = FileHandler.upload_file(file, filename_with_timestamp)
             makeXlsx.execute(
-                current_app.config['UPLOAD_FOLDER'],
-                current_app.config['XLSX_FOLDER'],
+                current_app.config['UPLOAD_FOLDER'] + '/',
+                current_app.config['XLSX_FOLDER'] + '/',
                 filename_with_timestamp
             )
             return result

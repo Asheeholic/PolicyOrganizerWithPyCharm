@@ -31,11 +31,11 @@ def login():
                     login_user(user)
                     return redirect(url_for('main.go_home'))
                 else:
-                    flash('Invalid OTP code', 'danger')
+                    flash('잘못된 인증번호입니다.', 'danger')
             else:
-                flash('Invalid username or password', 'danger')
+                flash('아이디 또는 비밀번호가 올바르지 않습니다.', 'danger')
         except Exception as e:
-            flash('Login failed. Please try again.', 'danger')
+            flash('로그인에 실패했습니다. 다시 시도해 주세요.', 'danger')
     
     return render_template('login.html', form=form)
 
@@ -53,7 +53,7 @@ def setup_mfa():
         try:
             otp_secret = User.setup_mfa(username)
             if not otp_secret:
-                flash('Failed to setup MFA', 'danger')
+                flash('2단계 인증 설정에 실패했습니다.', 'danger')
                 return redirect(url_for('auth.login'))
             
             totp = pyotp.TOTP(otp_secret)
@@ -70,20 +70,20 @@ def setup_mfa():
             
             return render_template('setup_mfa.html', form=form, qr_code=qr_code)
             
-        except Exception as e:
-            flash('Error setting up MFA', 'danger')
+        except Exception as e:            
+            flash('2단계 인증 설정 중 오류가 발생했습니다.', 'danger')
             return redirect(url_for('auth.login'))
     
     if form.validate_on_submit():
         try:
             if User.enable_mfa(username, form.otp_code.data):
                 session.pop('pre_auth_username', None)
-                flash('MFA setup successful!', 'success')
+                flash('2단계 인증이 성공적으로 설정되었습니다!', 'success')
                 return redirect(url_for('main.go_home'))
             else:
-                flash('Invalid OTP code', 'danger')
+                flash('잘못된 인증번호입니다.', 'danger')
         except Exception as e:
-            flash('Error verifying OTP', 'danger')
+            flash('인증번호 확인 중 오류가 발생했습니다.', 'danger')
         
         return redirect(url_for('auth.setup_mfa'))
     
@@ -93,7 +93,7 @@ def setup_mfa():
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        flash('You are already logged in.', 'warning')
+        flash('이미 로그인되어 있습니다.', 'warning')
         return redirect(url_for('main.go_home'))
 
     form = RegisterForm()
@@ -110,7 +110,7 @@ def register():
             send_verification_email(form.email.data, verification_code)
             session['verification_email'] = form.email.data
             
-            flash('Registration successful! Please check your email for verification code.', 'success')
+            flash('회원가입이 완료되었습니다! 이메일로 전송된 인증 코드를 확인해주세요.', 'success')
             return redirect(url_for('auth.verify_email'))
         except Exception as e:
             flash(str(e), 'danger')
@@ -119,7 +119,7 @@ def register():
 
 # Authentication route for email verification
 @auth.route('/verify-email', methods=['GET', 'POST'])
-def verify_email():
+def verify_email():    
     if 'verification_email' not in session:
         return redirect(url_for('auth.register'))
         
@@ -128,10 +128,10 @@ def verify_email():
         email = session['verification_email']
         if User.verify_email_code(email, form.code.data):
             session.pop('verification_email', None)
-            flash('Email verified successfully! You can now login.', 'success')
+            flash('이메일 인증이 완료되었습니다! 이제 로그인하실 수 있습니다.', 'success')
             return redirect(url_for('auth.login'))
         else:
-            flash('Invalid or expired verification code.', 'danger')
+            flash('잘못되었거나 만료된 인증 코드입니다.', 'danger')
     
     return render_template('verify_email.html', form=form)
 
@@ -152,11 +152,11 @@ def forgot_password():
                 User.set_reset_code(email, verification_code)
                 send_reset_email(email, verification_code)
                 session['reset_email'] = email
-                flash('Password reset code has been sent to your email.', 'info')
+                flash('비밀번호 재설정 코드가 이메일로 전송되었습니다.', 'info')
                 return redirect(url_for('auth.verify_reset_code'))
-            flash('Email address not found.', 'danger')
+            flash('등록되지 않은 이메일입니다.', 'danger')
         except Exception as e:
-            flash('Failed to send reset code. Please try again.', 'danger')
+            flash('인증 코드 전송에 실패했습니다. 다시 시도해주세요.', 'danger')
     
     return render_template('forgot_password.html', form=form)
 
@@ -168,11 +168,11 @@ def verify_reset_code():
     form = ResetCodeVerificationForm()
     if form.validate_on_submit():
         email = session['reset_email']
-        if User.verify_reset_code(email, form.code.data):
+        if User.verify_reset_code(email, form.code.data):            
             session['reset_verified'] = True
-            flash('Code verified. Please set your new password.', 'success')
+            flash('인증되었습니다. 새로운 비밀번호를 설정해주세요.', 'success')
             return redirect(url_for('auth.reset_password'))
-        flash('Invalid or expired verification code.', 'danger')
+        flash('잘못되었거나 만료된 인증 코드입니다.', 'danger')
     
     return render_template('verify_reset_code.html', form=form)
 
@@ -188,9 +188,9 @@ def reset_password():
             # Clear all reset-related session data
             session.pop('reset_email', None)
             session.pop('reset_verified', None)
-            flash('Your password has been reset successfully!', 'success')
+            flash('비밀번호가 성공적으로 재설정되었습니다!', 'success')
             return redirect(url_for('auth.login'))
-        flash('Password reset failed. Please try again.', 'danger')
+        flash('비밀번호 재설정에 실패했습니다. 다시 시도해주세요.', 'danger')
     
     return render_template('reset_password.html', form=form)
 
@@ -198,9 +198,9 @@ def reset_password():
 # Authentication route for password reset
 @auth.route('/logout')
 @login_required
-def logout():
+def logout():    
     logout_user()
-    flash('Successfully logged out', 'success')
+    flash('로그아웃 되었습니다.', 'success')
     return redirect(url_for('auth.login'))
 
 # Error handler for CSRF errors

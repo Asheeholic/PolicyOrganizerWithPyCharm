@@ -101,14 +101,9 @@ def create_app():
     # Load configurations
     app.config.from_object(Config)
 
-    # Initialize Flask-Mail
-    mail.init_app(app)
-    
-    # Ensure required directories exist
-    os.makedirs(Config.SESSION_FILE_DIR, exist_ok=True)
-    os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
-    os.makedirs(Config.XLSX_FOLDER, exist_ok=True)
-    os.makedirs(Config.DB_DIR, exist_ok=True)
+    # Initialize CSRF protection
+    csrf = CSRFProtect()
+    csrf.init_app(app)
 
     # Login manager setup
     login_manager = LoginManager()
@@ -121,11 +116,18 @@ def create_app():
     def load_user(user_id):
         return User.get(user_id)
     
-    # Setup CSRF protection
-    csrf = CSRFProtect(app)
-    
     # Setup session interface
     Session(app)
+    
+    # Initialize Flask-Mail
+    mail.init_app(app)
+    
+    # Ensure required directories exist
+    os.makedirs(Config.SESSION_FILE_DIR, exist_ok=True)
+    os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
+    os.makedirs(Config.XLSX_FOLDER, exist_ok=True)
+    os.makedirs(Config.DB_DIR, exist_ok=True)
+
     
      # Register error handlers
     @app.errorhandler(413)
