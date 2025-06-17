@@ -21,7 +21,7 @@ const drawTextListFunc = (divClassString, fileList) => {
 
 ////// created by claude agent start //////
 // 알림 표시 유틸리티
-const showToast = (message, type = 'success') => {
+const showToast = async (message, type = 'success') => {
     const alertArea = document.getElementById('alertArea');
     const alert = document.createElement('div');
     
@@ -32,7 +32,11 @@ const showToast = (message, type = 'success') => {
         'info': 'info-circle'
     }[type];
 
-    alert.className = `alert alert-${type} d-flex align-items-center alert-dismissible fade show`;
+    // opacity: 0으로 시작해서 트랜지션 효과 적용
+    alert.style.transition = 'opacity 0.5s ease-in-out';
+    alert.style.opacity = '0';
+    
+    alert.className = `alert alert-${type} d-flex align-items-center alert-dismissible`;
     alert.setAttribute('role', 'alert');
     
     alert.innerHTML = `
@@ -40,17 +44,47 @@ const showToast = (message, type = 'success') => {
         <div>${message}</div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="닫기"></button>
     `;
+      // 이전 알림이 있다면 페이드 아웃 후 제거를 기다림
+    const existingAlerts = Array.from(alertArea.querySelectorAll('.alert'));
+    if (existingAlerts.length > 0) {
+        await Promise.all(existingAlerts.map(oldAlert => {
+            return new Promise(resolve => {
+                oldAlert.style.opacity = '0';
+                setTimeout(() => {
+                    oldAlert.remove();
+                    resolve();
+                }, 500);
+            });
+        }));
+    }
     
-    // 기존 알림 제거
-    alertArea.innerHTML = '';
+    // 모든 이전 알림이 제거된 후 새 알림 추가
     alertArea.appendChild(alert);
     
-    // 성공/실패 메시지는 3초 후 자동으로 사라지게 함
+    // DOM에 추가된 후 페이드 인
+    setTimeout(() => {
+        alert.style.opacity = '1';
+    }, 10);
+    
+    // 성공/실패 메시지는 자동으로 사라지게 함
     if (type === 'success' || type === 'danger') {
         setTimeout(() => {
-            alert.remove();
+            alert.style.opacity = '0';
+            setTimeout(() => {
+                alert.remove();
+            }, 500);
         }, 3000);
     }
+    
+    // 닫기 버튼에 페이드 아웃 효과 추가
+    const closeButton = alert.querySelector('.btn-close');
+    closeButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert.style.opacity = '0';
+        setTimeout(() => {
+            alert.remove();
+        }, 500);
+    });
 };
 
 // 파일 카드 생성 함수
