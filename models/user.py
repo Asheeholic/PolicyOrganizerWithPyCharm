@@ -85,8 +85,13 @@ class User(UserMixin):
             RuntimeError: If database operation fails
         """
         try:
-            if User.get(username):
-                raise ValueError('Username already exists')
+             # Check if username or email already exists
+            User_query = Query()
+            if users_table.get(User_query.username == username):
+                raise ValueError("이미 존재하는 사용자명입니다.")
+            if users_table.get(User_query.email == email):
+                raise ValueError("이미 등록된 이메일입니다.")
+
                 
             user = {
                 'username': username,
@@ -99,6 +104,7 @@ class User(UserMixin):
                 'otp_enabled': False
             }
             users_table.insert(user)
+            current_app.logger.info(f"New user created: {username}")
             return User(user)
         except Exception as e:
             current_app.logger.error(f"Error creating user {username}: {str(e)}")
@@ -129,6 +135,10 @@ class User(UserMixin):
             if (user['verification_code'] != code or 
                 datetime.fromisoformat(user['verification_code_expires']) < datetime.now(timezone.utc)):
                 current_app.logger.warning(f"Invalid or expired verification code for email: {email}")
+                current_app.logger.debug(f"Input code: {code}")
+                current_app.logger.debug(f"Stored code: {user['verification_code']}")
+                current_app.logger.debug(f"Stored expiry: {datetime.fromisoformat(user['verification_code_expires'])}")
+                current_app.logger.debug(f"Current time (UTC): {datetime.now(timezone.utc)}")
                 return False
                 
             users_table.update({
@@ -150,12 +160,36 @@ class User(UserMixin):
 
     @staticmethod
     def verify_otp(user, otp_code):
+        """Verify OTP code for user"""
         try:
+            current_app.logger.debug(f"Verifying OTP for user {user.username}")
+            current_app.logger.debug(f"Input OTP code: {otp_code}")
+            current_app.logger.debug(f"User OTP secret: {user.otp_secret}")
+            
             if not user.otp_secret:
+                current_app.logger.warning(f"No OTP secret set for user {user.username}")
                 return False
+                
             totp = pyotp.TOTP(user.otp_secret)
-            return totp.verify(otp_code)
+            # 현재 시간과 허용 시간 윈도우 확인
+            current_time = datetime.now()
+            current_app.logger.debug(f"Current time: {current_time}")
+            current_app.logger.debug(f"Valid window: {totp.interval} seconds")
+            
+            # 생성된 OTP 코드 확인
+            valid_codes = [
+                totp.at(current_time - timedelta(seconds=30)),  # 이전 코드
+                totp.now(),  # 현재 코드
+                totp.at(current_time + timedelta(seconds=30))   # 다음 코드
+            ]
+            current_app.logger.debug(f"Valid OTP codes for current window: {valid_codes}")
+            
+            result = totp.verify(otp_code)
+            current_app.logger.debug(f"OTP verification result: {result}")
+            return result
+            
         except Exception as e:
+            current_app.logger.error(f"Error verifying OTP for user {user.username}: {str(e)}")
             return False
 
     @staticmethod

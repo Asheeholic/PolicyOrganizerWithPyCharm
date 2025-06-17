@@ -83,6 +83,7 @@ def setup_mfa():
             else:
                 flash('잘못된 인증번호입니다.', 'danger')
         except Exception as e:
+            print(f"Error during MFA setup: {e}")
             flash('인증번호 확인 중 오류가 발생했습니다.', 'danger')
         
         return redirect(url_for('auth.setup_mfa'))

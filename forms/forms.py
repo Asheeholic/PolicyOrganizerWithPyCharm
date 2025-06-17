@@ -42,11 +42,12 @@ class RegisterForm(FlaskForm):
 
     class Meta:
         csrf = True  # Enable CSRF protection 
-        email = StringField('이메일', validators=[
-            DataRequired(message='이메일을 입력해주세요.'),
-            Email(message='올바른 이메일 주소를 입력해주세요.'),
-            allowed_email
-        ])
+
+    email = StringField('이메일', validators=[
+        DataRequired(message='이메일을 입력해주세요.'),
+        Email(message='올바른 이메일 주소를 입력해주세요.'),
+        allowed_email
+    ])
 
     username = StringField('아이디', validators=[
         DataRequired(message='아이디를 입력해주세요.'),

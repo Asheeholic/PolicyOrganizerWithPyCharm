@@ -48,7 +48,7 @@ class Config:
         SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN', None)  # 도메인 설정
     else:
         SESSION_COOKIE_SECURE = False
-        SESSION_COOKIE_HTTPONLY = True  # 개발환경에서도 보안을 위해 유지
+        SESSION_COOKIE_HTTPONLY = False # 개발환경에서는 HTTP 접근 허용
         SESSION_COOKIE_SAMESITE = 'Lax'
         SESSION_COOKIE_DOMAIN = None  # 개발환경에서는 도메인 설정하지 않음
     
